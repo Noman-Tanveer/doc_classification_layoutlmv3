@@ -4,3 +4,4 @@ test_set
 *__pycache__
 logs
 train_set
+val_set
