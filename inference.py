@@ -1,3 +1,4 @@
+import os
 import logging
 import warnings
 from PIL import Image
@@ -8,8 +9,8 @@ logging.basicConfig(level=logging.INFO)
 import torch
 from transformers import AutoProcessor, AutoModelForSequenceClassification
 
-path = "train_set/email/doc_000079.png"
-img = Image.open(path)
+img_path = os.getenv("IMG_PATH")
+img = Image.open(img_path)
 img = img.convert('RGB')
 
 ckpt_path="./models/weights_only/best_model.pth"
