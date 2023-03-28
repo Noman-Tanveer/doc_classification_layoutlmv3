@@ -1,11 +1,16 @@
 train_data_path: train_set
 val_data_path: val_set
 resume: False
-epochs: 10
+epochs: 20
 batch_size: 4
 num_labels: 3
-logging_config: "logging.conf"
-output_logs_path: "./logs"
-output_ckpt_path: "./models"
-output_production_path: "./models/weights_only"
-  
+logging_config: logging.conf
+output_logs_path: ./logs
+output_ckpt_path: ./models
+output_production_path: ./models/weights_only
+device: cuda
+
+# Optimizer oparameters
+learning_rate: 0.00005
+scheduler_step: 2
+scheduler_decay: 0.5

@@ -20,9 +20,9 @@ from dataloader import DocData
 
 with open('config.yaml') as file:
   config = yaml.safe_load(file)
-  print(config)
 logging.config.fileConfig(fname=config["logging_config"], disable_existing_loggers=True)
 logger = logging.getLogger(__name__)
+logger.info(config)
 epochs = config["epochs"]
 output_ckpt_path= config["output_ckpt_path"]
 output_production_path= config["output_production_path"]
@@ -35,13 +35,15 @@ writer = SummaryWriter(output_logs_path)
 
 if not config["device"]:
     device = "cuda" if torch.cuda.is_available() else "cpu"
+else:
+    device = config["device"]
 
 trainset = DocData(config["train_data_path"])
-val_set = DocData(config["val_set"])
-model = AutoModelForSequenceClassification.from_pretrained("microsoft/layoutlmv3-base", num_labels=3)
+val_set = DocData(config["val_data_path"])
+model = AutoModelForSequenceClassification.from_pretrained("microsoft/layoutlmv3-base", num_labels=num_labels)
 model.to(device)
-optimizer = AdamW(model.parameters(), lr=5e-5)
-lr_scheduler = StepLR(optimizer, step_size=2, gamma=0.2)
+optimizer = AdamW(model.parameters(), lr=config["learning_rate"])
+lr_scheduler = StepLR(optimizer, step_size=config["scheduler_step"], gamma=config["scheduler_decay"])
 # Split dataset into train/val/test
 
 def checkpoint(model, epoch, step, optimizer, loss, path):
@@ -132,7 +134,7 @@ for epoch in range(start_epoch, epochs):
     y, y_hat, val_step = validate(testloader, val_step)
     lr = lr_scheduler.get_last_lr()[-1]
     lr_scheduler.step()
-    writer.add_scalar("Learning Rate", lr, epoch+1)
+    writer.add_scalar("Learning Rate", lr, epoch)
     
     assert len(y) == len(y_hat)
     val_report = classification_report(y, y_hat, output_dict=True, zero_division=0)
@@ -140,13 +142,13 @@ for epoch in range(start_epoch, epochs):
     curr_f1 = val_report["macro avg"]["f1-score"]
     writer.add_scalar("F1 score", curr_f1, epoch)
     logger.info(f"f1 score = {curr_f1}")
-    if curr_f1 > best_f1:
+    if curr_f1 >= best_f1:
         pth = f"{output_ckpt_path}/best_model.pth"
 
         logger.info(f"Saving Best checkpoint {best_f1} ---> {curr_f1}")
         best_f1 = curr_f1
-        checkpoint(model, epoch + 1, train_step, optimizer, best_f1, pth)
+        checkpoint(model, epoch, train_step, optimizer, best_f1, pth)
         torch.save(model.state_dict(), f"{output_production_path}/best_model.pth")
 
     pth = f"{output_ckpt_path}/last_model.pth"
-    checkpoint(model, epoch + 1, train_step, optimizer, best_f1, pth)
+    checkpoint(model, epoch, train_step, optimizer, best_f1, pth)
