@@ -6,11 +6,15 @@ The dataset used for training is provided [here](https://www.kaggle.com/datasets
 - Another issue faced was that model would overfit very quickly within a few epochs. To address this issue I've emplyed learning rate dacay of 0.5 after every two epochs.
 
 
-From the figures below we can see the trainiing progress and evidently model does not overfit.
-![Train loss](imgs/train_loss.png)
-![Validation loss](imgs/train_loss.png)
-![Learning Rate](imgs/train_loss.png)
-![](imgs/train_loss.png)
+From the figures below we can see the trainiing progress and evidently model does not overfit:
+- Training loss decreases consistantly:
+![Training loss](imgs/Train_loss.png)
+- Validation loss does not increase because of low learning rate:
+![Validation loss](imgs/Val_loss.png)
+- F1-score incresase remains 1 because all samples are classified correctly:
+![F1 Score](imgs/F1-score.png)
+- Learning rate is halved every 2 epochs:
+![Learning Rate](imgs/Learning_rate.png)
 
 
 ## Setting up training:
