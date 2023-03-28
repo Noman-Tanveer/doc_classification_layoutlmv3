@@ -25,13 +25,14 @@ logging.config.fileConfig(fname=config["logging_config"], disable_existing_logge
 logger = logging.getLogger(__name__)
 logger.info(config)
 epochs = config["epochs"]
-output_ckpt_path= config["output_ckpt_path"]
-output_production_path= config["output_production_path"]
+output_ckpt_path = config["output_ckpt_path"]
+output_production_path = config["output_production_path"]
 output_logs_path = config["output_logs_path"]
 resume = config["resume"]
 batch_size = config["batch_size"]
 num_labels = config["num_labels"]
 
+os.makedirs(output_ckpt_path, exist_ok=True)
 os.makedirs(output_production_path, exist_ok=True)
 
 writer = SummaryWriter(output_logs_path)
@@ -151,7 +152,7 @@ for epoch in range(start_epoch, epochs):
         logger.info(f"Saving Best checkpoint {best_f1} ---> {curr_f1}")
         best_f1 = curr_f1
         checkpoint(model, epoch, train_step, optimizer, best_f1, pth)
-        torch.save(model.state_dict(), f"{output_production_path}/best_model.pth")
+        torch.save(model.state_dict(), f"{output_production_path}/trained_model.pth")
 
     pth = f"{output_ckpt_path}/last_model.pth"
     checkpoint(model, epoch, train_step, optimizer, best_f1, pth)

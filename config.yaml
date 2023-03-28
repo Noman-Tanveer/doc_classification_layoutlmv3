@@ -7,7 +7,7 @@ num_labels: 3
 logging_config: logging.conf
 output_logs_path: ./logs
 output_ckpt_path: ./models
-output_production_path: ./models/weights_only
+output_production_path: ./weights
 device: cuda
 
 # Optimizer oparameters

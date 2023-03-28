@@ -8,3 +8,4 @@ val_set
 weights
 *.pth
 .env
+images_dir

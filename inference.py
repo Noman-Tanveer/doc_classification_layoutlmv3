@@ -13,7 +13,7 @@ img_path = os.getenv("IMG_PATH")
 img = Image.open(img_path)
 img = img.convert('RGB')
 
-ckpt_path="./models/weights_only/best_model.pth"
+ckpt_path="./weights/trained_model.pth"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 

@@ -4,6 +4,7 @@ The dataset used for training is provided [here](https://www.kaggle.com/datasets
 
 - Since the dataset only contains 165 images training a large model like LayoutLMv3 from scratch is not feasible. Transfer learning is used to finetune the model on the current dataset.
 - Another issue faced was that model would overfit very quickly within a few epochs. To address this issue I've emplyed learning rate dacay of 0.5 after every two epochs.
+- Training is not stable for batch-size lower than 4 likely because of batch norm function.
 
 
 From the figures below we can see the trainiing progress and evidently model does not overfit:
@@ -26,8 +27,8 @@ From the figures below we can see the trainiing progress and evidently model doe
 ## Running Inference:
 
 ### Build docker:
-- Download the pretrained weights file from [here](https://drive.google.com/file/d/1lWOLVfrt78DDkMwcz8THfD9gv8ejBaHk/view?usp=sharing) and place it in ```./weights``` folder.
-- Download the dataset from the [link](https://www.kaggle.com/datasets/ritvik1909/document-classification-dataset) and place it in ```/images_dir```
+- Download the pretrained weights file from [here](https://drive.google.com/file/d/1lWOLVfrt78DDkMwcz8THfD9gv8ejBaHk/view?usp=sharing) OR use locally trained weights file and place it in ```./weights``` folder.
+- Download the dataset from the [link](https://www.kaggle.com/datasets/ritvik1909/document-classification-dataset) and extract it in ```./images_dir```
 - Build the docker with Dockerfile using: ```docker build -t dl_assignment_px_noman .```
 - Run the docker file with ```docker run -e IMG_PATH=<path_to_imagefile_in_docker> dl_assignment_px_noman```
 
