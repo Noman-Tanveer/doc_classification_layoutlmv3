@@ -1,12 +1,21 @@
 # syntax=docker/dockerfile:1
 
-FROM pytorch/pytorch:1.13.1-cuda11.6-cudnn8-runtime
+FROM python:3.10-slim
+
+ENV PYHTONUNBUFFERED=1
+
+RUN apt-get update \
+  && apt-get -y install tesseract-ocr \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN apt update \
+  && apt-get install ffmpeg libsm6 libxext6 -y
 
 WORKDIR /app
 
 COPY requirements.txt requirements.txt
+
 RUN pip3 install -r requirements.txt
-
 COPY . .
-
-CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+ENTRYPOINT ["python3"]
+CMD ["inference.py"]
