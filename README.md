@@ -30,7 +30,7 @@ From the figures below we can see the trainiing progress and evidently model doe
 - Download the pretrained weights file from [here](https://drive.google.com/file/d/1lWOLVfrt78DDkMwcz8THfD9gv8ejBaHk/view?usp=sharing) OR use locally trained weights file and place it in ```./weights``` folder.
 - Download the dataset from the [link](https://www.kaggle.com/datasets/ritvik1909/document-classification-dataset) and extract it in ```./images_dir```
 - Build the docker with Dockerfile using: ```docker build -t dl_assignment_px_noman .```
-- Run the docker file with ```docker run -v full_path/to_local_dir:/home/app/images_dir -e IMG_PATH=images_dir/resume/doc_000070.png dl_assignment_px_noman```
+- Run the docker file with ```docker run -v full_path/to_local_dir:/app/images_dir -e IMG_PATH=images_dir/resume/doc_000070.png dl_assignment_px_noman```
 
 ### Pull from dockerhub:
 - Pull the docker from dockerhub ```docker pull nomantanveer/dl_assignment_px_noman:latest```
