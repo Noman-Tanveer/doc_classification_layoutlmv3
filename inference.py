@@ -15,11 +15,12 @@ img = img.convert('RGB')
 
 ckpt_path="./models/weights_only/best_model.pth"
 
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
 model = AutoModelForSequenceClassification.from_pretrained("microsoft/layoutlmv3-base", num_labels=3)
-model.load_state_dict(torch.load(ckpt_path))
+model.load_state_dict(torch.load(ckpt_path, map_location=torch.device(device)))
 processor = AutoProcessor.from_pretrained("microsoft/layoutlmv3-base", apply_ocr=True)
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 encoding = processor(img, return_tensors="pt", max_length=512, truncation=True, padding="max_length")
 encoding.to(device)

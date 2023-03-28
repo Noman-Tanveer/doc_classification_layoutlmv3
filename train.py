@@ -18,6 +18,7 @@ from torch.optim.lr_scheduler import StepLR
 
 from dataloader import DocData
 
+os.environ["TOKENIZERS_PARALLELISM"]="false"
 with open('config.yaml') as file:
   config = yaml.safe_load(file)
 logging.config.fileConfig(fname=config["logging_config"], disable_existing_loggers=True)
@@ -30,6 +31,8 @@ output_logs_path = config["output_logs_path"]
 resume = config["resume"]
 batch_size = config["batch_size"]
 num_labels = config["num_labels"]
+
+os.makedirs(output_production_path, exist_ok=True)
 
 writer = SummaryWriter(output_logs_path)
 
@@ -114,7 +117,7 @@ def validate(valloader, step):
                 y_hat.extend(logits)
                 step += 1
             return y, y_hat, step
-            
+
 trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
 testloader = DataLoader(val_set, batch_size=batch_size, shuffle=True)
 train_step = 0
@@ -135,7 +138,7 @@ for epoch in range(start_epoch, epochs):
     lr = lr_scheduler.get_last_lr()[-1]
     lr_scheduler.step()
     writer.add_scalar("Learning Rate", lr, epoch)
-    
+
     assert len(y) == len(y_hat)
     val_report = classification_report(y, y_hat, output_dict=True, zero_division=0)
 
