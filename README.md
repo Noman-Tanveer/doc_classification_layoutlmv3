@@ -20,13 +20,13 @@ From the figures below we can see the trainiing progress and evidently model doe
 - Train by simply running ```python train.py```
 
 ## Running Inference:
-Download the pretrained weights file from [here](https://drive.google.com/file/d/1lWOLVfrt78DDkMwcz8THfD9gv8ejBaHk/view?usp=sharing) and place it in ```./weights``` folder.
 
 ### Build docker:
+- Download the pretrained weights file from [here](https://drive.google.com/file/d/1lWOLVfrt78DDkMwcz8THfD9gv8ejBaHk/view?usp=sharing) and place it in ```./weights``` folder.
 - Download the dataset from the [link](https://www.kaggle.com/datasets/ritvik1909/document-classification-dataset) and place it in ```/images_dir```
-- Build the docker with Dockerfile using: ```docker run -e IMG_PATH=images_dir/resume/doc_000051.png dl_assignment_px_noman```
-- Run the docker file with ```docker run -e IMG_PATH=images_dir/resume/doc_000051.png dl_assignment_px_noman```
+- Build the docker with Dockerfile using: ```docker build -t dl_assignment_px_noman .```
+- Run the docker file with ```docker run -e IMG_PATH=<path_to_imagefile_in_docker> dl_assignment_px_noman```
 
 ### Pull from dockerhub:
-- Pull the docker from dockerhub ```
-- Run the docker file with ```docker run -e IMG_PATH=images_dir/resume/doc_000051.png dl_assignment_px_noman```
+- Pull the docker from dockerhub ```docker pull nomantanveer/dl_assignment_px_noman:latest```
+- Run the docker file with ```docker run -e IMG_PATH=<./images_dir/resume/doc_000051.png> dl_assignment_px_noman```
