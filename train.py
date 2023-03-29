@@ -1,29 +1,36 @@
 import os
 import logging
+import glob
 import logging.config
 import warnings
 from tqdm import tqdm
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 import yaml
+import numpy as np
 from dotenv import load_dotenv
 load_dotenv()
 
 import torch
 from transformers import AutoModelForSequenceClassification, AdamW
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, SubsetRandomSampler
 from torch.utils.tensorboard import SummaryWriter
 from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split, KFold
 from torch.optim.lr_scheduler import StepLR
 
-from dataloader import DocData
-
-os.environ["TOKENIZERS_PARALLELISM"]="false"
 with open('config.yaml') as file:
   config = yaml.safe_load(file)
 logging.config.fileConfig(fname=config["logging_config"], disable_existing_loggers=True)
 logger = logging.getLogger(__name__)
+
+from utils import split_data
+from dataloader import DocData
+
+os.environ["TOKENIZERS_PARALLELISM"]="false"
+
 logger.info(config)
+
 epochs = config["epochs"]
 output_ckpt_path = config["output_ckpt_path"]
 output_production_path = config["output_production_path"]
@@ -31,6 +38,18 @@ output_logs_path = config["output_logs_path"]
 resume = config["resume"]
 batch_size = config["batch_size"]
 num_labels = config["num_labels"]
+full_data_path = config["dataset_path"]
+trainset_path = config["train_data_path"]
+testset_path = config["test_data_path"]
+crossval_folds = config["folds"]
+
+# Split dataset into train/test and place in trainset_path, testset_path
+split_data(full_data_path, trainset_path, testset_path)
+
+logger.info(f"Performing {crossval_folds} fold cross-validation")
+kf_corssval = KFold(n_splits=crossval_folds)
+train_imgs = glob.glob(os.path.join(trainset_path, "**/*.png"))
+train_val_splits = list(kf_corssval.split(train_imgs))
 
 os.makedirs(output_ckpt_path, exist_ok=True)
 os.makedirs(output_production_path, exist_ok=True)
@@ -42,13 +61,12 @@ if not config["device"]:
 else:
     device = config["device"]
 
-trainset = DocData(config["train_data_path"])
-val_set = DocData(config["val_data_path"])
+trainset = DocData(train_imgs)
+
 model = AutoModelForSequenceClassification.from_pretrained("microsoft/layoutlmv3-base", num_labels=num_labels)
 model.to(device)
 optimizer = AdamW(model.parameters(), lr=config["learning_rate"])
 lr_scheduler = StepLR(optimizer, step_size=config["scheduler_step"], gamma=config["scheduler_decay"])
-# Split dataset into train/val/test
 
 def checkpoint(model, epoch, step, optimizer, loss, path):
     torch.save(
@@ -82,7 +100,7 @@ def encoding_to_gpu(encoding):
 
 def train(trainloader, step):
     with tqdm(trainloader, unit="image") as trainloader:
-        trainloader.set_description(f"Epoch {epoch}")
+        trainloader.set_description(f"Train Epoch {epoch}")
         for batch in trainloader:
             encoding = encoding_to_gpu(batch)
             outputs = model(**encoding)
@@ -119,8 +137,6 @@ def validate(valloader, step):
                 step += 1
             return y, y_hat, step
 
-trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
-testloader = DataLoader(val_set, batch_size=batch_size, shuffle=True)
 train_step = 0
 val_step = 0
 best_f1 = 0
@@ -134,8 +150,13 @@ else:
 for epoch in range(start_epoch, epochs):
     y = []
     y_hat = []
+    
+    train_indices, val_indices = train_val_splits[epoch % kf_corssval.get_n_splits()]
+
+    trainloader = DataLoader(trainset, batch_size=batch_size, sampler=SubsetRandomSampler(train_indices))
+    valloader = DataLoader(trainset, batch_size=batch_size, sampler=SubsetRandomSampler(val_indices))
     train_step = train(trainloader, train_step)
-    y, y_hat, val_step = validate(testloader, val_step)
+    y, y_hat, val_step = validate(valloader, val_step)
     lr = lr_scheduler.get_last_lr()[-1]
     lr_scheduler.step()
     writer.add_scalar("Learning Rate", lr, epoch)

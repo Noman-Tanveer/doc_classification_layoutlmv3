@@ -8,10 +8,9 @@ from torchvision.datasets import ImageFolder
 from transformers import AutoProcessor
 
 class DocData(Dataset):
-    def __init__(self, img_dir) -> None:
+    def __init__(self, imgs) -> None:
         super().__init__()
-        self.img_dir = img_dir
-        self.imgs = glob.glob(os.path.join(img_dir, "**/*.png"))
+        self.imgs = imgs
         self.labels = list(map(lambda x:x.strip(), open("labels.txt").readlines()))
         self.processor = AutoProcessor.from_pretrained("microsoft/layoutlmv3-base", apply_ocr=True)
 
