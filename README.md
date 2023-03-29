@@ -5,7 +5,7 @@ The dataset used for training is provided [here](https://www.kaggle.com/datasets
 - Since the dataset only contains 165 images training a large model like LayoutLMv3 from scratch is not feasible. Transfer learning is used to finetune the model on the current dataset.
 - Dataset is first split into training and test sets with 90% in train-set and 10% in test-set.
 - Trainset is then split into K(5) splits, which we use to perform cross-validation.
-- Another issue faced was that model would overfit very quickly within a few epochs. To address this issue I've emplyed learning rate dacay of 0.5 after every two epochs.
+- Another issue faced was that model would overfit very quickly within a few epochs. To address this issue I've employed learning rate dacay of 0.5 after every two epochs.
 - Training is not stable for batch-size lower than 4 likely because of batch-norm function.
 - F1-score quickly approaches 1 because problem is a simple one and number of test samples is very small.
 
