@@ -145,7 +145,7 @@ else:
 for epoch in range(start_epoch, epochs):
     y = []
     y_hat = []
-    
+
     train_indices, val_indices = train_val_splits[epoch % kf_corssval.get_n_splits()]
 
     trainloader = DataLoader(trainset, batch_size=batch_size, sampler=SubsetRandomSampler(train_indices))
