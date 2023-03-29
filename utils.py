@@ -36,7 +36,7 @@ def split_data(full_data_path, trainset_path, testset_path):
     labels = list(map(lambda x:x.strip(), open("labels.txt").readlines()))
 
     img_lbls = [labels.index(img.split("/")[-2]) for img in images]
-    
+
     # Setting random state for reporduction, tratified for balanced split
     imgs_train, imgs_test, y_train, y_test = train_test_split(images, img_lbls, stratify=img_lbls, train_size=0.9, random_state=100)
 

@@ -2,7 +2,7 @@ dataset_path: images_dir
 train_data_path: train_set
 test_data_path: test_set
 resume: False
-epochs: 20
+epochs: 10
 batch_size: 4
 num_labels: 3
 logging_config: logging.conf

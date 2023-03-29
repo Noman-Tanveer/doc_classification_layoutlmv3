@@ -93,17 +93,12 @@ def load_checkpoint(save_path):
 
     return model, optimizer, epoch, step, loss
 
-def encoding_to_gpu(encoding):
-    for k, v in encoding.items():
-        encoding[k] = v.to(device)
-    return encoding
-
 def train(trainloader, step):
     with tqdm(trainloader, unit="image") as trainloader:
         trainloader.set_description(f"Train Epoch {epoch}")
         for batch in trainloader:
-            encoding = encoding_to_gpu(batch)
-            outputs = model(**encoding)
+            batch.to(device)
+            outputs = model(**batch)
             loss = outputs.loss
 
             loss.backward()
@@ -121,7 +116,7 @@ def validate(valloader, step):
         with tqdm(valloader, unit="image") as valloader:
             valloader.set_description(f"Validating Epoch {epoch}")
             for encoding in valloader:
-                encoding = encoding_to_gpu(encoding)
+                encoding.to(device)
                 outputs = model(**encoding)
                 loss = outputs.loss
                 logits = outputs.logits
